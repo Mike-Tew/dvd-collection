@@ -16,10 +16,19 @@ title_label = Label(
     font=("Helvetica 16 bold"),
     bg="#bfbfbf",
 )
-title_label.grid(row=0, column=0)
+title_label.grid(row=0, column=0, columnspan=2, pady=[0, 20])
 
+entry_label = Label(
+    root,
+    width=10,
+    text="DVD Title:"
+)
+entry_label.grid(row=1, column=0)
 
-exit_button = Button(root, text="EXIT", width=20, command=_exit)
-exit_button.grid(row=3)
+entry_field = Entry(root, width=50)
+entry_field.grid(row=1, column=1)
+
+exit_button = Button(root, text="EXIT", width=10, command=_exit)
+exit_button.grid(row=3, column=0, columnspan=2, pady=[20, 0])
 
 root.mainloop()
