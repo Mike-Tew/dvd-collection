@@ -1,40 +1,33 @@
 # TODO
-# Generate a SQL database
-# View collection from SQL database
-# Allow insertions into SQL database
+# Add functionality to delete a DVD
 
 from tkinter import *
 import os
 import sqlite3
 
 
-conn = sqlite3.connect("dvd_collection.db")
-cur = conn.cursor()
-# cur.execute("""CREATE TABLE dvd_collection (title text)""")
-# cur.execute("INSERT INTO dvd_collection VALUES(?)", ("Lord of the Rings",))
-# cur.execute("INSERT INTO dvd_collection VALUES(?)", ("Harry Potter",))
-# cur.execute("INSERT INTO dvd_collection VALUES(?)", ("Inception",))
+_DBPATH = "./dvd_collection.db"
 
-# cur.execute("SELECT title FROM dvd_collection")
-# dvd_collection = cur.fetchall()
-conn.commit()
-conn.close()
+if os.path.isfile(_DBPATH) == False:
+    conn = sqlite3.connect(_DBPATH)
+    cur = conn.cursor()
+    cur.execute("""CREATE TABLE dvd_collection (title text)""")
+    conn.commit()
+    conn.close()
 
-# print(dvd_collection)
-# for title in dvd_collection:
-#     print(title)
 
 def fetch_collection():
     """Fetch the DVD collection from the database and return it as a list."""
 
-    conn = sqlite3.connect("dvd_collection.db")
+    conn = sqlite3.connect(_DBPATH)
     cur = conn.cursor()
     cur.execute("SELECT title FROM dvd_collection")
+
     dvd_collection = []
     for dvd in cur.fetchall():
         dvd_collection.append(dvd[0])
+
     conn.close()
-    print(dvd_collection)
     return dvd_collection
 
 
@@ -48,12 +41,17 @@ def show_collection():
 
 
 def submit_title():
-    """Submit a DVD title to the collection."""
+    """Submit a DVD title to the database and refresh the collection."""
 
-    title = title_entry.get()
+    title = title_entry.get().strip()
 
-    if title.strip():
-        dvd_collection.append(title)
+    if title:
+        conn = sqlite3.connect(_DBPATH)
+        cur = conn.cursor()
+        cur.execute("INSERT INTO dvd_collection VALUES(?)", (title,))
+        conn.commit()
+        conn.close()
+
         title_entry.delete(0, END)
         show_collection()
 
@@ -85,9 +83,6 @@ dvd_output_field.grid(row=2, column=0, columnspan=3, padx=60, pady=20, sticky="n
 
 exit_button = Button(root, text="EXIT", width=10, command=lambda: root.destroy())
 exit_button.grid(row=3, column=1, pady=[0, 20])
-
-test_button = Button(root, text="For testing only", width=20, command=fetch_collection)
-test_button.grid(row=4)
 
 show_collection()
 root.mainloop()
