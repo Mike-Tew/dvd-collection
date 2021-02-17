@@ -1,7 +1,4 @@
-# TODO
-# Add functionality to delete a DVD
-
-from tkinter import *
+from tkinter import Tk, Button, Listbox, Entry, Label, END
 import os
 import sqlite3
 
@@ -14,6 +11,24 @@ if os.path.isfile(_DBPATH) == False:
     cur.execute("""CREATE TABLE dvd_collection (title text)""")
     conn.commit()
     conn.close()
+
+
+def delete_dvd():
+    """Delete a DVD from the collection"""
+
+    collection_items = dvd_output_field.get(0, END)
+
+    try:
+        selected_title = collection_items[dvd_output_field.curselection()[0]]
+        conn = sqlite3.connect(_DBPATH)
+        cur = conn.cursor()
+        cur.execute("""DELETE FROM dvd_collection WHERE title = ?""", (selected_title,))
+        conn.commit()
+        conn.close()
+    except:
+        print("Please select a DVD")
+
+    show_collection()
 
 
 def fetch_collection():
@@ -79,10 +94,15 @@ submit_button = Button(root, text="SUBMIT", width=10, command=submit_title)
 submit_button.grid(row=1, column=2)
 
 dvd_output_field = Listbox(root, justify="center")
-dvd_output_field.grid(row=2, column=0, columnspan=3, padx=60, pady=20, sticky="nsew")
+dvd_output_field.grid(
+    row=2, column=0, columnspan=3, padx=60, pady=[20, 10], sticky="nsew"
+)
+
+delete_button = Button(root, text="DELETE SELECTED DVD", width=20, command=delete_dvd)
+delete_button.grid(row=3, column=1)
 
 exit_button = Button(root, text="EXIT", width=10, command=lambda: root.destroy())
-exit_button.grid(row=3, column=1, pady=[0, 20])
+exit_button.grid(row=4, column=1, pady=20)
 
 show_collection()
 root.mainloop()
